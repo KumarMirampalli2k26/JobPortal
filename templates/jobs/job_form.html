@@ -1,11 +1,11 @@
 {% extends 'base.html' %}
 
-{% block title %}Post a Job - JobPortal{% endblock %}
+{% block title %}{% if object %}Edit Job{% else %}Post a Job{% endif %} - JobPortal{% endblock %}
 
 {% block content %}
 <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-    <div class="bg-white shadow sm:rounded-lg border border-gray-100 p-6 sm:p-8">
-        <h2 class="text-2xl font-bold text-gray-900 mb-6">Post a New Job</h2>
+    <div class="card p-6 sm:p-8">
+        <h2 class="text-2xl font-bold text-gray-900 mb-6">{% if object %}Edit Job{% else %}Post a New Job{% endif %}</h2>
         
         <form method="POST" class="space-y-6">
             {% csrf_token %}
@@ -14,47 +14,42 @@
                 <div class="sm:col-span-2">
                     <label for="id_title" class="block text-sm font-medium text-gray-700">Job Title</label>
                     <div class="mt-1">
-                        <input type="text" name="title" id="id_title" required class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md border p-2">
+                        <input type="text" name="title" id="id_title" value="{{ form.title.value|default:'' }}" required class="input-field">
                     </div>
                 </div>
 
                 <div class="sm:col-span-2">
                     <label for="id_description" class="block text-sm font-medium text-gray-700">Description</label>
                     <div class="mt-1">
-                        <textarea name="description" id="id_description" rows="5" required class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md border p-2"></textarea>
+                        <textarea name="description" id="id_description" rows="5" required class="input-field">{{ form.description.value|default:'' }}</textarea>
+                    </div>
+                </div>
+
+                <div class="sm:col-span-2">
+                    <label for="id_skills" class="block text-sm font-medium text-gray-700">Required Skills</label>
+                    <div class="mt-1">
+                        <input type="text" name="skills" id="id_skills" value="{{ form.skills.value|default:'' }}" placeholder="e.g. Python, Django, React" class="input-field">
                     </div>
                 </div>
 
                 <div>
                     <label for="id_location" class="block text-sm font-medium text-gray-700">Location</label>
                     <div class="mt-1">
-                        <input type="text" name="location" id="id_location" required class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md border p-2">
-                    </div>
-                </div>
-
-                <div>
-                    <label for="id_skills" class="block text-sm font-medium text-gray-700">Job Type</label>
-                    <div class="mt-1">
-                        <select name="skills" id="id_skills" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md border p-2">
-                            <option value="FULL_TIME">Full Time</option>
-                            <option value="PART_TIME">Part Time</option>
-                            <option value="CONTRACT">Contract</option>
-                            <option value="INTERNSHIP">Internship</option>
-                        </select>
+                        <input type="text" name="location" id="id_location" value="{{ form.location.value|default:'' }}" required class="input-field">
                     </div>
                 </div>
                 
-                <div class="sm:col-span-2">
-                    <label for="id_salary" class="block text-sm font-medium text-gray-700">Salary Range (Optional)</label>
+                <div>
+                    <label for="id_salary" class="block text-sm font-medium text-gray-700">Salary</label>
                     <div class="mt-1">
-                        <input type="text" name="salary" id="id_salary" placeholder="e.g. $80,000 - $100,000" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md border p-2">
+                        <input type="text" name="salary" id="id_salary" value="{{ form.salary.value|default:'' }}" placeholder="e.g. $80,000 - $100,000" class="input-field">
                     </div>
                 </div>
             </div>
 
-            <div class="flex justify-end pt-4 border-t border-gray-100">
-                <a href="{% url 'dashboard' %}" class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 mr-3">Cancel</a>
-                <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Post Job</button>
+            <div class="flex justify-end pt-4 border-t border-gray-100 space-x-3">
+                <a href="{% url 'dashboard' %}" class="btn-secondary">Cancel</a>
+                <button type="submit" class="btn-primary">{% if object %}Save Changes{% else %}Post Job{% endif %}</button>
             </div>
         </form>
     </div>

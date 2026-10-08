@@ -36,8 +36,20 @@ def dashboard(request):
 @recruiter_required
 def recruiter_dashboard(request):
     jobs = Job.objects.filter(recruiter=request.user)
-    applications = Application.objects.filter(job__in=jobs).order_by('-applied_at')[:5]
-    return render(request, 'accounts/dashboard_recruiter.html', {'jobs': jobs, 'applications': applications})
+    applications = Application.objects.filter(job__in=jobs).order_by('-applied_at')
+    
+    total_jobs = jobs.count()
+    active_jobs = jobs.filter(is_active=True).count()
+    total_applicants = applications.count()
+    
+    context = {
+        'jobs': jobs,
+        'applications': applications[:5],
+        'total_jobs': total_jobs,
+        'active_jobs': active_jobs,
+        'total_applicants': total_applicants,
+    }
+    return render(request, 'accounts/dashboard_recruiter.html', context)
 
 @candidate_required
 def candidate_dashboard(request):

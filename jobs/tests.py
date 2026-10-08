@@ -65,3 +65,68 @@ class JobsTestCase(TestCase):
         with transaction.atomic():
             with self.assertRaises(Exception):
                 Application.objects.create(job=self.job, candidate=self.candidate, resume=pdf_resume)
+
+class JobCRUDTestCase(TestCase):
+    def setUp(self):
+        self.recruiter = User.objects.create_user(username='recruiter1', password='password123', email='r1@example.com')
+        self.recruiter.profile.role = 'RECRUITER'
+        self.recruiter.profile.save()
+        
+        self.candidate = User.objects.create_user(username='candidate1', password='password123', email='c1@example.com')
+        self.candidate.profile.role = 'CANDIDATE'
+        self.candidate.profile.save()
+
+        self.job = Job.objects.create(
+            recruiter=self.recruiter,
+            title='Old Job',
+            description='Old Description',
+            location='Old Location'
+        )
+
+    def test_job_create_view(self):
+        self.client.login(username='recruiter1', password='password123')
+        response = self.client.post('/jobs/create/', data={
+            'title': 'New Job',
+            'description': 'New Description',
+            'location': 'New Location',
+            'skills': 'Python',
+            'salary': '$100k'
+        })
+        self.assertRedirects(response, '/accounts/dashboard/', fetch_redirect_response=False)
+        self.assertTrue(Job.objects.filter(title='New Job').exists())
+
+    def test_job_update_view(self):
+        self.client.login(username='recruiter1', password='password123')
+        response = self.client.post(f'/jobs/{self.job.id}/update/', data={
+            'title': 'Updated Job',
+            'description': 'Updated Description',
+            'location': 'Updated Location'
+        })
+        self.assertRedirects(response, '/accounts/dashboard/', fetch_redirect_response=False)
+        self.job.refresh_from_db()
+        self.assertEqual(self.job.title, 'Updated Job')
+
+    def test_job_delete_view(self):
+        self.client.login(username='recruiter1', password='password123')
+        response = self.client.post(f'/jobs/{self.job.id}/delete/')
+        self.assertRedirects(response, '/accounts/dashboard/', fetch_redirect_response=False)
+        self.assertFalse(Job.objects.filter(id=self.job.id).exists())
+
+    def test_job_toggle_active_view(self):
+        self.client.login(username='recruiter1', password='password123')
+        self.assertTrue(self.job.is_active)
+        response = self.client.post(f'/jobs/{self.job.id}/toggle/')
+        self.assertRedirects(response, '/accounts/dashboard/', fetch_redirect_response=False)
+        self.job.refresh_from_db()
+        self.assertFalse(self.job.is_active)
+
+    def test_permissions(self):
+        self.client.login(username='candidate1', password='password123')
+        
+        # Candidate tries to create job
+        response = self.client.get('/jobs/create/')
+        self.assertEqual(response.status_code, 302)
+        
+        # Candidate tries to edit job
+        response = self.client.get(f'/jobs/{self.job.id}/update/')
+        self.assertEqual(response.status_code, 302)

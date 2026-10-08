@@ -1,11 +1,13 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from django.views.generic import ListView, DetailView, CreateView
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, View
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.urls import reverse_lazy
 from django.contrib import messages
 from django.db.models import Q
-from .models import Job, Application
+from .models import Job, Application, Company
+from django.utils.decorators import method_decorator
+from accounts.decorators import recruiter_required
 
 class JobListView(ListView):
     model = Job
@@ -35,7 +37,8 @@ class JobDetailView(DetailView):
             context['has_applied'] = Application.objects.filter(job=self.object, candidate=self.request.user).exists()
         return context
 
-class JobCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
+@method_decorator(recruiter_required, name='dispatch')
+class JobCreateView(CreateView):
     model = Job
     template_name = 'jobs/job_form.html'
     fields = ['title', 'description', 'skills', 'location', 'salary']
@@ -46,8 +49,57 @@ class JobCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
         messages.success(self.request, "Job posted successfully!")
         return super().form_valid(form)
 
-    def test_func(self):
-        return self.request.user.profile.role == 'RECRUITER'
+@method_decorator(recruiter_required, name='dispatch')
+class JobUpdateView(UpdateView):
+    model = Job
+    template_name = 'jobs/job_form.html'
+    fields = ['title', 'description', 'skills', 'location', 'salary']
+    success_url = reverse_lazy('dashboard')
+
+    def get_queryset(self):
+        return Job.objects.filter(recruiter=self.request.user)
+
+    def form_valid(self, form):
+        messages.success(self.request, "Job updated successfully!")
+        return super().form_valid(form)
+
+@method_decorator(recruiter_required, name='dispatch')
+class JobDeleteView(DeleteView):
+    model = Job
+    template_name = 'jobs/job_confirm_delete.html'
+    success_url = reverse_lazy('dashboard')
+
+    def get_queryset(self):
+        return Job.objects.filter(recruiter=self.request.user)
+        
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, "Job deleted successfully!")
+        return super().delete(request, *args, **kwargs)
+
+@method_decorator(recruiter_required, name='dispatch')
+class JobToggleActiveView(View):
+    def post(self, request, pk):
+        job = get_object_or_404(Job, pk=pk, recruiter=request.user)
+        job.is_active = not job.is_active
+        job.save()
+        status = "activated" if job.is_active else "deactivated"
+        messages.success(request, f"Job {status} successfully!")
+        return redirect('dashboard')
+
+@method_decorator(recruiter_required, name='dispatch')
+class CompanyUpdateView(UpdateView):
+    model = Company
+    template_name = 'jobs/company_form.html'
+    fields = ['name', 'logo', 'website', 'location', 'description']
+    success_url = reverse_lazy('dashboard')
+
+    def get_object(self, queryset=None):
+        company, created = Company.objects.get_or_create(owner=self.request.user, defaults={'name': 'Your Company Name'})
+        return company
+
+    def form_valid(self, form):
+        messages.success(self.request, "Company profile updated successfully!")
+        return super().form_valid(form)
 
 @login_required
 def apply_to_job(request, pk):
