@@ -86,8 +86,16 @@
                         <a href="{% url 'home' %}" class="text-2xl font-bold text-indigo-600 tracking-tight">JobPortal.</a>
                     </div>
                     <div class="hidden sm:-my-px sm:ml-8 sm:flex sm:space-x-8">
-                        <a href="{% url 'home' %}" class="inline-flex items-center px-1 pt-1 border-b-2 border-indigo-500 text-sm font-medium text-gray-900">Home</a>
-                        <a href="{% url 'job_list' %}" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300">Jobs</a>
+                        <a href="{% url 'home' %}"
+                           class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors
+                                  {% if request.path == '/' %}border-indigo-500 text-gray-900{% else %}border-transparent text-gray-600 hover:text-gray-900 hover:border-gray-300{% endif %}">
+                            Home
+                        </a>
+                        <a href="{% url 'job_list' %}"
+                           class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors
+                                  {% if '/jobs/' in request.path %}border-indigo-500 text-gray-900{% else %}border-transparent text-gray-600 hover:text-gray-900 hover:border-gray-300{% endif %}">
+                            Jobs
+                        </a>
                     </div>
                 </div>
                 <div class="hidden sm:ml-6 sm:flex sm:items-center space-x-4">
@@ -142,8 +150,16 @@
         <!-- Mobile menu, show/hide based on menu state. -->
         <div class="sm:hidden" id="mobile-menu" x-show="mobileMenuOpen" x-transition:enter="transition ease-out duration-100" x-transition:enter-start="transform opacity-0 scale-95" x-transition:enter-end="transform opacity-100 scale-100" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="transform opacity-100 scale-100" x-transition:leave-end="transform opacity-0 scale-95" style="display: none;">
             <div class="pt-2 pb-3 space-y-1">
-                <a href="{% url 'home' %}" class="bg-indigo-50 border-indigo-500 text-indigo-700 block pl-3 pr-4 py-2 border-l-4 text-base font-medium">Home</a>
-                <a href="{% url 'job_list' %}" class="border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700 block pl-3 pr-4 py-2 border-l-4 text-base font-medium">Jobs</a>
+                <a href="{% url 'home' %}"
+                   class="block pl-3 pr-4 py-2 border-l-4 text-base font-medium
+                          {% if request.path == '/' %}bg-indigo-50 border-indigo-500 text-indigo-700{% else %}border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700{% endif %}">
+                    Home
+                </a>
+                <a href="{% url 'job_list' %}"
+                   class="block pl-3 pr-4 py-2 border-l-4 text-base font-medium
+                          {% if '/jobs/' in request.path %}bg-indigo-50 border-indigo-500 text-indigo-700{% else %}border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700{% endif %}">
+                    Jobs
+                </a>
             </div>
             {% if user.is_authenticated %}
             <div class="pt-4 pb-3 border-t border-gray-200">
