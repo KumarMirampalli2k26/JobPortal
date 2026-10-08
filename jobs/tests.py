@@ -177,3 +177,40 @@ class ApplicationFlowTestCase(TestCase):
         self.assertEqual(response.status_code, 200) # Form validation failed, re-renders page
         self.assertContains(response, "Allowed extensions are: pdf")
         self.assertEqual(Application.objects.count(), 0)
+
+class ApplicantManagementTestCase(TestCase):
+    def setUp(self):
+        self.recruiter = User.objects.create_user(username='recruiter1', password='password123', email='r1@example.com')
+        self.recruiter.profile.role = 'RECRUITER'
+        self.recruiter.profile.save()
+        
+        self.candidate = User.objects.create_user(username='candidate1', password='password123', email='c1@example.com')
+        self.candidate.profile.role = 'CANDIDATE'
+        self.candidate.profile.save()
+
+        self.job = Job.objects.create(
+            recruiter=self.recruiter,
+            title='Test Job',
+            description='Test Description',
+            location='Test Location'
+        )
+        
+        pdf_resume = SimpleUploadedFile("resume.pdf", b"dummy pdf content", content_type="application/pdf")
+        self.application = Application.objects.create(job=self.job, candidate=self.candidate, resume=pdf_resume)
+
+    def test_status_change_and_email(self):
+        self.client.login(username='recruiter1', password='password123')
+        
+        from django.core import mail
+        
+        response = self.client.post(f'/jobs/application/{self.application.id}/status/SHORTLISTED/')
+        self.assertRedirects(response, f'/jobs/{self.job.id}/applicants/', fetch_redirect_response=False)
+        
+        self.application.refresh_from_db()
+        self.assertEqual(self.application.status, 'SHORTLISTED')
+        
+        # Test if email was sent
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].subject, f"Update on your application for {self.job.title}")
+        self.assertIn("Shortlisted", mail.outbox[0].body)
+        self.assertEqual(mail.outbox[0].to, ['c1@example.com'])

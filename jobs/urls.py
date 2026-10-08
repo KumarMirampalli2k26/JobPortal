@@ -10,5 +10,6 @@ urlpatterns = [
     path('<int:pk>/toggle/', views.JobToggleActiveView.as_view(), name='job_toggle'),
     path('<int:pk>/apply/', views.apply_to_job, name='apply_to_job'),
     path('<int:pk>/applicants/', views.JobApplicantsView.as_view(), name='job_applicants'),
+    path('application/<int:pk>/status/<str:status>/', views.ChangeApplicationStatusView.as_view(), name='change_application_status'),
     path('company/', views.CompanyUpdateView.as_view(), name='company_update'),
 ]

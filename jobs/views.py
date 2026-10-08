@@ -135,5 +135,45 @@ class JobApplicantsView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['applications'] = self.object.applications.all()
+        
+        status_filter = self.request.GET.get('status')
+        applications = self.object.applications.all()
+        if status_filter in dict(Application.STATUS_CHOICES):
+            applications = applications.filter(status=status_filter)
+            
+        context['applications'] = applications
+        context['status_filter'] = status_filter
+        context['status_choices'] = Application.STATUS_CHOICES
         return context
+
+@method_decorator(recruiter_required, name='dispatch')
+class ChangeApplicationStatusView(View):
+    def post(self, request, pk, status):
+        application = get_object_or_404(Application, pk=pk, job__recruiter=request.user)
+        
+        if status in dict(Application.STATUS_CHOICES):
+            application.status = status
+            application.save()
+            messages.success(request, f"Application status updated to {application.get_status_display()}.")
+            
+            # Send email notification
+            subject = f"Update on your application for {application.job.title}"
+            message = f"Hello {application.candidate.first_name},\n\n" \
+                      f"Your application status for the position of {application.job.title} " \
+                      f"at {application.job.recruiter.username} has been updated to: {application.get_status_display()}.\n\n" \
+                      f"Thank you for applying!"
+            
+            from django.core.mail import send_mail
+            from django.conf import settings
+            
+            send_mail(
+                subject,
+                message,
+                getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@jobportal.com'),
+                [application.candidate.email],
+                fail_silently=True,
+            )
+        else:
+            messages.error(request, "Invalid status.")
+            
+        return redirect('job_applicants', pk=application.job.pk)
