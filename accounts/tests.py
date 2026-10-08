@@ -50,12 +50,12 @@ class AccountsTestCase(TestCase):
         
         self.client.login(username='recruiter1', password='password123')
         response = self.client.get('/accounts/dashboard/')
-        self.assertRedirects(response, '/accounts/dashboard/recruiter/', fetch_redirect_response=False)
+        self.assertRedirects(response, '/accounts/recruiter/dashboard/', fetch_redirect_response=False)
 
     def test_role_based_access(self):
         self.client.login(username='candidate1', password='password123')
         # Candidate tries to access recruiter dashboard
-        response = self.client.get('/accounts/dashboard/recruiter/')
+        response = self.client.get('/accounts/recruiter/dashboard/')
         # Custom decorators redirect to login if fail
         self.assertEqual(response.status_code, 302)
         
