@@ -5,58 +5,109 @@ from jobs.models import Company, Job, Application, SavedJob
 from django.core.files.uploadedfile import SimpleUploadedFile
 
 class Command(BaseCommand):
-    help = 'Seeds the database with sample recruiters, candidates, companies, jobs, applications, and saved jobs.'
+    help = 'Seeds the database with realistic sample recruiters, candidates, companies, jobs, applications, and saved jobs.'
 
     def handle(self, *args, **kwargs):
-        self.stdout.write("Seeding data...")
+        self.stdout.write("Seeding realistic data...")
+
+        # Clear existing data to prevent duplicates on multiple runs (optional but good for seed)
+        # We will just use get_or_create though, to not destroy user data unless needed, but let's just make realistic unique data.
 
         # Create Recruiters
-        recruiter1, _ = User.objects.get_or_create(username='r1', email='r1@example.com')
-        recruiter1.set_password('password')
-        recruiter1.save()
-        recruiter1.profile.role = 'RECRUITER'
-        recruiter1.profile.save()
+        recruiters_data = [
+            {'username': 'sarah_hr', 'email': 'sarah@techcorp.com', 'first_name': 'Sarah', 'last_name': 'Connor'},
+            {'username': 'michael_rec', 'email': 'michael@innovatellc.com', 'first_name': 'Michael', 'last_name': 'Scott'},
+            {'username': 'jessica_tech', 'email': 'jessica@futureai.com', 'first_name': 'Jessica', 'last_name': 'Alba'},
+        ]
 
-        recruiter2, _ = User.objects.get_or_create(username='r2', email='r2@example.com')
-        recruiter2.set_password('password')
-        recruiter2.save()
-        recruiter2.profile.role = 'RECRUITER'
-        recruiter2.profile.save()
+        recruiters = []
+        for data in recruiters_data:
+            user, created = User.objects.get_or_create(username=data['username'], email=data['email'])
+            if created:
+                user.set_password('password123')
+                user.first_name = data['first_name']
+                user.last_name = data['last_name']
+                user.save()
+                user.profile.role = 'RECRUITER'
+                user.profile.save()
+            recruiters.append(user)
 
         # Create Companies
-        c1, _ = Company.objects.get_or_create(owner=recruiter1, defaults={'name': 'Tech Corp', 'location': 'New York'})
-        c2, _ = Company.objects.get_or_create(owner=recruiter2, defaults={'name': 'Innovate LLC', 'location': 'San Francisco'})
+        companies_data = [
+            {'owner': recruiters[0], 'name': 'TechCorp Solutions', 'location': 'New York, NY', 'website': 'https://techcorp.example.com', 'description': 'A leading provider of enterprise software solutions.'},
+            {'owner': recruiters[1], 'name': 'Innovate LLC', 'location': 'Austin, TX', 'website': 'https://innovate.example.com', 'description': 'Fast-growing startup focusing on consumer mobile applications.'},
+            {'owner': recruiters[2], 'name': 'Future AI', 'location': 'San Francisco, CA', 'website': 'https://futureai.example.com', 'description': 'Research and development company advancing artificial intelligence.'},
+        ]
+
+        companies = []
+        for data in companies_data:
+            company, _ = Company.objects.get_or_create(owner=data['owner'], defaults={
+                'name': data['name'],
+                'location': data['location'],
+                'website': data['website'],
+                'description': data['description']
+            })
+            companies.append(company)
 
         # Create Candidates
-        candidate1, _ = User.objects.get_or_create(username='c1', email='c1@example.com')
-        candidate1.set_password('password')
-        candidate1.save()
-        candidate1.profile.role = 'CANDIDATE'
-        candidate1.profile.save()
+        candidates_data = [
+            {'username': 'john_dev', 'email': 'john@example.com', 'first_name': 'John', 'last_name': 'Doe', 'bio': 'Passionate backend developer with 5 years of Python experience.'},
+            {'username': 'jane_frontend', 'email': 'jane@example.com', 'first_name': 'Jane', 'last_name': 'Smith', 'bio': 'Creative frontend engineer who loves React and CSS.'},
+            {'username': 'alex_data', 'email': 'alex@example.com', 'first_name': 'Alex', 'last_name': 'Johnson', 'bio': 'Data scientist with a knack for machine learning and analytics.'},
+        ]
 
-        candidate2, _ = User.objects.get_or_create(username='c2', email='c2@example.com')
-        candidate2.set_password('password')
-        candidate2.save()
-        candidate2.profile.role = 'CANDIDATE'
-        candidate2.profile.save()
+        candidates = []
+        for data in candidates_data:
+            user, created = User.objects.get_or_create(username=data['username'], email=data['email'])
+            if created:
+                user.set_password('password123')
+                user.first_name = data['first_name']
+                user.last_name = data['last_name']
+                user.save()
+                user.profile.role = 'CANDIDATE'
+                user.profile.bio = data['bio']
+                user.profile.save()
+            candidates.append(user)
 
         # Create Jobs
-        job1, _ = Job.objects.get_or_create(
-            recruiter=recruiter1, title='Software Engineer',
-            defaults={'skills': 'Python, Django', 'location': 'New York', 'salary': '$120k', 'description': 'Build cool stuff.'}
-        )
-        job2, _ = Job.objects.get_or_create(
-            recruiter=recruiter2, title='Frontend Developer',
-            defaults={'skills': 'React, Tailwind', 'location': 'San Francisco', 'salary': '$110k', 'description': 'Build UIs.'}
-        )
+        jobs_data = [
+            {'recruiter': recruiters[0], 'title': 'Senior Backend Engineer', 'skills': 'Python, Django, PostgreSQL, Docker', 'location': 'Remote (US)', 'salary': '$130,000 - $160,000', 'description': 'We are looking for an experienced backend engineer to scale our core APIs...'},
+            {'recruiter': recruiters[0], 'title': 'DevOps Specialist', 'skills': 'AWS, Kubernetes, CI/CD', 'location': 'New York, NY', 'salary': '$140,000', 'description': 'Join our infrastructure team to help maintain our high-availability services...'},
+            {'recruiter': recruiters[1], 'title': 'Frontend React Developer', 'skills': 'React, Tailwind CSS, TypeScript', 'location': 'Austin, TX', 'salary': '$110,000 - $130,000', 'description': 'Help us build beautiful and responsive consumer applications using the latest web technologies...'},
+            {'recruiter': recruiters[2], 'title': 'Machine Learning Researcher', 'skills': 'Python, PyTorch, TensorFlow', 'location': 'San Francisco, CA', 'salary': '$150,000 - $200,000', 'description': 'Push the boundaries of what is possible with large language models...'},
+            {'recruiter': recruiters[2], 'title': 'Data Engineer', 'skills': 'SQL, Spark, Python', 'location': 'San Francisco, CA', 'salary': '$120,000 - $145,000', 'description': 'Build robust data pipelines to support our ML research...'},
+        ]
+
+        jobs = []
+        for data in jobs_data:
+            job, _ = Job.objects.get_or_create(
+                recruiter=data['recruiter'], title=data['title'],
+                defaults={
+                    'skills': data['skills'],
+                    'location': data['location'],
+                    'salary': data['salary'],
+                    'description': data['description']
+                }
+            )
+            jobs.append(job)
 
         # Create Applications
         dummy_resume = SimpleUploadedFile("resume.pdf", b"file_content", content_type="application/pdf")
-        Application.objects.get_or_create(job=job1, candidate=candidate1, defaults={'resume': dummy_resume, 'status': 'APPLIED'})
-        Application.objects.get_or_create(job=job2, candidate=candidate2, defaults={'resume': dummy_resume, 'status': 'SHORTLISTED'})
+        
+        # John applies to Backend and ML
+        Application.objects.get_or_create(job=jobs[0], candidate=candidates[0], defaults={'resume': dummy_resume, 'status': 'APPLIED'})
+        Application.objects.get_or_create(job=jobs[3], candidate=candidates[0], defaults={'resume': dummy_resume, 'status': 'REJECTED'})
+        
+        # Jane applies to Frontend
+        Application.objects.get_or_create(job=jobs[2], candidate=candidates[1], defaults={'resume': dummy_resume, 'status': 'SHORTLISTED'})
+
+        # Alex applies to ML and Data Engineer
+        Application.objects.get_or_create(job=jobs[3], candidate=candidates[2], defaults={'resume': dummy_resume, 'status': 'SHORTLISTED'})
+        Application.objects.get_or_create(job=jobs[4], candidate=candidates[2], defaults={'resume': dummy_resume, 'status': 'APPLIED'})
 
         # Create Saved Jobs
-        SavedJob.objects.get_or_create(user=candidate1, job=job2)
-        SavedJob.objects.get_or_create(user=candidate2, job=job1)
+        SavedJob.objects.get_or_create(user=candidates[0], job=jobs[1])
+        SavedJob.objects.get_or_create(user=candidates[1], job=jobs[0])
+        SavedJob.objects.get_or_create(user=candidates[2], job=jobs[2])
 
-        self.stdout.write(self.style.SUCCESS("Successfully seeded data!"))
+        self.stdout.write(self.style.SUCCESS("Successfully seeded realistic data!"))

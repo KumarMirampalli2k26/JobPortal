@@ -306,3 +306,27 @@ class CompanyProfileTestCase(TestCase):
         self.company.refresh_from_db()
         self.assertEqual(self.company.name, 'New Tech Corp')
         self.assertEqual(self.company.location, 'San Francisco')
+
+class JobSearchTestCase(TestCase):
+    def setUp(self):
+        self.recruiter = User.objects.create_user(username='recruiter1', password='password123', email='r1@example.com')
+        Job.objects.create(recruiter=self.recruiter, title='Backend Developer', description='Python Django', location='Remote')
+        Job.objects.create(recruiter=self.recruiter, title='Frontend Developer', description='React Tailwind', location='Remote')
+        Job.objects.create(recruiter=self.recruiter, title='Data Scientist', description='Machine Learning', location='New York')
+
+    def test_search_by_title(self):
+        response = self.client.get('/jobs/?q=Backend')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Backend Developer')
+        self.assertNotContains(response, 'Frontend Developer')
+
+    def test_search_by_description(self):
+        response = self.client.get('/jobs/?q=Python')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Backend Developer')
+
+    def test_search_by_location(self):
+        response = self.client.get('/jobs/?q=York')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Data Scientist')
+        self.assertNotContains(response, 'Frontend Developer')
