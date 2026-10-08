@@ -8,9 +8,9 @@ class CompanyAdmin(admin.ModelAdmin):
 
 @admin.register(Job)
 class JobAdmin(admin.ModelAdmin):
-    list_display = ['title', 'recruiter', 'location', 'is_active', 'posted_on']
-    list_filter = ['is_active', 'posted_on']
-    search_fields = ['title', 'description', 'location', 'skills']
+    list_display = ['title', 'recruiter', 'company_name', 'job_type', 'location', 'is_active', 'posted_on']
+    list_filter = ['is_active', 'job_type', 'posted_on']
+    search_fields = ['title', 'description', 'location', 'skills', 'company_name']
 
 @admin.register(Application)
 class ApplicationAdmin(admin.ModelAdmin):

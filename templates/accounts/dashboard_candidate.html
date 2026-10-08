@@ -45,7 +45,13 @@
                             </div>
                             <div class="mt-2 sm:flex sm:justify-between">
                                 <div class="sm:flex text-sm text-gray-500">
-                                    <p class="flex items-center">{{ app.job.recruiter.company.name|default:app.job.recruiter.username }}</p>
+                                    <p class="flex items-center">
+                                        {% if app.job.company_name %}
+                                            {{ app.job.company_name }}
+                                        {% else %}
+                                            {{ app.job.recruiter.company.name|default:app.job.recruiter.username }}
+                                        {% endif %}
+                                    </p>
                                 </div>
                                 <div class="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
                                     <p>Applied on <time datetime="{{ app.applied_at|date:'Y-m-d' }}">{{ app.applied_at|date:"M d, Y" }}</time></p>

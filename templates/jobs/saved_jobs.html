@@ -17,7 +17,11 @@
                 <div class="p-6 flex-grow">
                     <div class="flex items-center justify-between mb-2">
                         <div class="text-sm font-medium text-indigo-600 truncate">
-                            {{ saved.job.recruiter.company.name|default:saved.job.recruiter.username }}
+                            {% if saved.job.company_name %}
+                                {{ saved.job.company_name }}
+                            {% else %}
+                                {{ saved.job.recruiter.company.name|default:saved.job.recruiter.username }}
+                            {% endif %}
                         </div>
                         <form method="POST" action="{% url 'toggle_saved_job' saved.job.id %}">
                             {% csrf_token %}

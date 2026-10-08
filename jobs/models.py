@@ -14,12 +14,21 @@ class Company(models.Model):
         return self.name
 
 class Job(models.Model):
+    JOB_TYPE_CHOICES = (
+        ('Full-time', 'Full-time'),
+        ('Part-time', 'Part-time'),
+        ('Remote', 'Remote'),
+        ('Contract', 'Contract'),
+    )
+
     recruiter = models.ForeignKey(User, on_delete=models.CASCADE, related_name='posted_jobs')
     title = models.CharField(max_length=200)
-    skills = models.CharField(max_length=255, blank=True, null=True)
+    company_name = models.CharField(max_length=200, blank=True, null=True)
     location = models.CharField(max_length=150)
     salary = models.CharField(max_length=100, blank=True, null=True)
+    skills = models.CharField(max_length=255, blank=True, null=True)
     description = models.TextField()
+    job_type = models.CharField(max_length=50, choices=JOB_TYPE_CHOICES, default='Full-time')
     posted_on = models.DateTimeField(auto_now_add=True)
     is_active = models.BooleanField(default=True)
     

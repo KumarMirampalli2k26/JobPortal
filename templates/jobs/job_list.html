@@ -30,6 +30,9 @@
                                 <div class="flex items-center space-x-3">
                                     <p class="text-lg font-semibold text-indigo-600 truncate">{{ job.title }}</p>
                                     <p class="badge">
+                                        {{ job.job_type }}
+                                    </p>
+                                    <p class="badge">
                                         {{ job.skills }}
                                     </p>
                                 </div>
@@ -51,7 +54,9 @@
                                         <svg class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                                           <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
                                         </svg>
-                                        {% if job.recruiter.company %}
+                                        {% if job.company_name %}
+                                            <object><span class="font-medium text-gray-900">{{ job.company_name }}</span></object>
+                                        {% elif job.recruiter.company %}
                                             <object><a href="{% url 'company_detail' job.recruiter.company.id %}" class="hover:text-indigo-600 hover:underline">{{ job.recruiter.company.name }}</a></object>
                                         {% else %}
                                             {{ job.recruiter.username }}

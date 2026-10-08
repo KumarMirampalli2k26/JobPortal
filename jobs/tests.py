@@ -90,7 +90,8 @@ class JobCRUDTestCase(TestCase):
             'description': 'New Description',
             'location': 'New Location',
             'skills': 'Python',
-            'salary': '$100k'
+            'salary': '$100k',
+            'job_type': 'Full-time'
         })
         self.assertRedirects(response, '/accounts/dashboard/', fetch_redirect_response=False)
         self.assertTrue(Job.objects.filter(title='New Job').exists())
@@ -100,7 +101,8 @@ class JobCRUDTestCase(TestCase):
         response = self.client.post(f'/jobs/{self.job.id}/update/', data={
             'title': 'Updated Job',
             'description': 'Updated Description',
-            'location': 'Updated Location'
+            'location': 'Updated Location',
+            'job_type': 'Remote'
         })
         self.assertRedirects(response, '/accounts/dashboard/', fetch_redirect_response=False)
         self.job.refresh_from_db()

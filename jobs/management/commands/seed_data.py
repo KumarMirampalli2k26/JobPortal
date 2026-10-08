@@ -71,11 +71,11 @@ class Command(BaseCommand):
 
         # Create Jobs
         jobs_data = [
-            {'recruiter': recruiters[0], 'title': 'Senior Backend Engineer', 'skills': 'Python, Django, PostgreSQL, Docker', 'location': 'Remote (US)', 'salary': '$130,000 - $160,000', 'description': 'We are looking for an experienced backend engineer to scale our core APIs...'},
-            {'recruiter': recruiters[0], 'title': 'DevOps Specialist', 'skills': 'AWS, Kubernetes, CI/CD', 'location': 'New York, NY', 'salary': '$140,000', 'description': 'Join our infrastructure team to help maintain our high-availability services...'},
-            {'recruiter': recruiters[1], 'title': 'Frontend React Developer', 'skills': 'React, Tailwind CSS, TypeScript', 'location': 'Austin, TX', 'salary': '$110,000 - $130,000', 'description': 'Help us build beautiful and responsive consumer applications using the latest web technologies...'},
-            {'recruiter': recruiters[2], 'title': 'Machine Learning Researcher', 'skills': 'Python, PyTorch, TensorFlow', 'location': 'San Francisco, CA', 'salary': '$150,000 - $200,000', 'description': 'Push the boundaries of what is possible with large language models...'},
-            {'recruiter': recruiters[2], 'title': 'Data Engineer', 'skills': 'SQL, Spark, Python', 'location': 'San Francisco, CA', 'salary': '$120,000 - $145,000', 'description': 'Build robust data pipelines to support our ML research...'},
+            {'recruiter': recruiters[0], 'title': 'Senior Backend Engineer', 'company_name': 'TechCorp Solutions', 'job_type': 'Full-time', 'skills': 'Python, Django, PostgreSQL, Docker', 'location': 'Remote (US)', 'salary': '$130,000 - $160,000', 'description': 'We are looking for an experienced backend engineer to scale our core APIs...'},
+            {'recruiter': recruiters[0], 'title': 'DevOps Specialist', 'company_name': 'TechCorp Solutions', 'job_type': 'Contract', 'skills': 'AWS, Kubernetes, CI/CD', 'location': 'New York, NY', 'salary': '$140,000', 'description': 'Join our infrastructure team to help maintain our high-availability services...'},
+            {'recruiter': recruiters[1], 'title': 'Frontend React Developer', 'company_name': 'Innovate LLC', 'job_type': 'Full-time', 'skills': 'React, Tailwind CSS, TypeScript', 'location': 'Austin, TX', 'salary': '$110,000 - $130,000', 'description': 'Help us build beautiful and responsive consumer applications using the latest web technologies...'},
+            {'recruiter': recruiters[2], 'title': 'Machine Learning Researcher', 'company_name': 'Future AI', 'job_type': 'Full-time', 'skills': 'Python, PyTorch, TensorFlow', 'location': 'San Francisco, CA', 'salary': '$150,000 - $200,000', 'description': 'Push the boundaries of what is possible with large language models...'},
+            {'recruiter': recruiters[2], 'title': 'Data Engineer', 'company_name': 'Future AI', 'job_type': 'Remote', 'skills': 'SQL, Spark, Python', 'location': 'San Francisco, CA', 'salary': '$120,000 - $145,000', 'description': 'Build robust data pipelines to support our ML research...'},
         ]
 
         jobs = []
@@ -83,6 +83,8 @@ class Command(BaseCommand):
             job, _ = Job.objects.get_or_create(
                 recruiter=data['recruiter'], title=data['title'],
                 defaults={
+                    'company_name': data['company_name'],
+                    'job_type': data['job_type'],
                     'skills': data['skills'],
                     'location': data['location'],
                     'salary': data['salary'],

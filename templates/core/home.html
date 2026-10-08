@@ -68,7 +68,11 @@
                             </div>
                             <div class="ml-3">
                                 <p class="text-sm font-medium text-gray-900">
-                                    {{ job.recruiter.company.name|default:job.recruiter.username }}
+                                    {% if job.company_name %}
+                                        {{ job.company_name }}
+                                    {% else %}
+                                        {{ job.recruiter.company.name|default:job.recruiter.username }}
+                                    {% endif %}
                                 </p>
                                 <div class="flex space-x-1 text-sm text-gray-500">
                                     <time datetime="{{ job.posted_on|date:'Y-m-d' }}">

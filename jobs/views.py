@@ -52,7 +52,7 @@ class JobDetailView(DetailView):
 class JobCreateView(CreateView):
     model = Job
     template_name = 'jobs/job_form.html'
-    fields = ['title', 'description', 'skills', 'location', 'salary']
+    fields = ['title', 'company_name', 'job_type', 'description', 'skills', 'location', 'salary']
     success_url = reverse_lazy('dashboard')
 
     def form_valid(self, form):
@@ -64,7 +64,7 @@ class JobCreateView(CreateView):
 class JobUpdateView(UpdateView):
     model = Job
     template_name = 'jobs/job_form.html'
-    fields = ['title', 'description', 'skills', 'location', 'salary']
+    fields = ['title', 'company_name', 'job_type', 'description', 'skills', 'location', 'salary']
     success_url = reverse_lazy('dashboard')
 
     def get_queryset(self):

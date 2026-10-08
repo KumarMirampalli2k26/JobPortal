@@ -29,7 +29,7 @@ JobPortal is designed with a minimal and professional UI/UX, built to industry s
 ## 🗄️ Database Schema
 - **User / Profile**: Extends Django's User model via OneToOne relationship to store roles, phone, bio, and avatars.
 - **Company**: OneToOne to User (Recruiter), storing name, logo, location, website, and description.
-- **Job**: Linked to Recruiter (User FK), storing title, skills, description, salary, location, and activity status.
+- **Job**: Linked to Recruiter (User FK), storing title, company_name, job_type, skills, description, salary, location, and activity status.
 - **Application**: Linked to Job and Candidate. Stores resume (PDF validation), applied date, and application status.
 - **SavedJob**: Tracks bookmarked jobs by Candidates (User, Job unique together).
 

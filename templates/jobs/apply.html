@@ -6,7 +6,7 @@
 <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
     <div class="card p-6 sm:p-8">
         <h2 class="text-2xl font-bold text-gray-900 mb-2">Apply for {{ job.title }}</h2>
-        <p class="text-gray-500 mb-6">at {{ job.recruiter.company.name|default:job.recruiter.username }}</p>
+        <p class="text-gray-500 mb-6">at {% if job.company_name %}{{ job.company_name }}{% else %}{{ job.recruiter.company.name|default:job.recruiter.username }}{% endif %}</p>
         
         <form method="POST" enctype="multipart/form-data" class="space-y-6">
             {% csrf_token %}

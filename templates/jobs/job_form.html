@@ -18,6 +18,25 @@
                     </div>
                 </div>
 
+                <div>
+                    <label for="id_company_name" class="block text-sm font-medium text-gray-700">Company Name</label>
+                    <div class="mt-1">
+                        <input type="text" name="company_name" id="id_company_name" value="{{ form.company_name.value|default:'' }}" class="input-field">
+                    </div>
+                </div>
+
+                <div>
+                    <label for="id_job_type" class="block text-sm font-medium text-gray-700">Job Type</label>
+                    <div class="mt-1">
+                        <select name="job_type" id="id_job_type" class="input-field">
+                            <option value="Full-time" {% if form.job_type.value == 'Full-time' %}selected{% endif %}>Full-time</option>
+                            <option value="Part-time" {% if form.job_type.value == 'Part-time' %}selected{% endif %}>Part-time</option>
+                            <option value="Remote" {% if form.job_type.value == 'Remote' %}selected{% endif %}>Remote</option>
+                            <option value="Contract" {% if form.job_type.value == 'Contract' %}selected{% endif %}>Contract</option>
+                        </select>
+                    </div>
+                </div>
+
                 <div class="sm:col-span-2">
                     <label for="id_description" class="block text-sm font-medium text-gray-700">Description</label>
                     <div class="mt-1">

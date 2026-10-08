@@ -9,7 +9,9 @@
             <div>
                 <h3 class="text-2xl leading-6 font-bold text-gray-900">{{ job.title }}</h3>
                 <p class="mt-1 max-w-2xl text-sm text-gray-500">
-                    {% if job.recruiter.company %}
+                    {% if job.company_name %}
+                        <span class="font-medium text-gray-900">{{ job.company_name }}</span>
+                    {% elif job.recruiter.company %}
                         <a href="{% url 'company_detail' job.recruiter.company.id %}" class="font-medium text-indigo-600 hover:underline">{{ job.recruiter.company.name }}</a> 
                     {% else %}
                         {{ job.recruiter.username }} 
@@ -18,6 +20,9 @@
                 </p>
             </div>
             <div>
+                <span class="badge">
+                    {{ job.job_type }}
+                </span>
                 <span class="badge">
                     {{ job.skills }}
                 </span>
