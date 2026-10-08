@@ -38,6 +38,27 @@ class Job(models.Model):
     def __str__(self):
         return self.title
 
+    @property
+    def formatted_salary(self):
+        if not self.salary:
+            return ""
+        
+        import re
+        
+        def format_inr(match):
+            s = match.group(0).replace(',', '')
+            if len(s) > 3:
+                s = re.sub(r'(\d)(?=(\d{2})+(?!\d))', r'\1,', s[:-3]) + ',' + s[-3:]
+            return f"₹{s}"
+            
+        text = self.salary.replace('$', '').replace('₹', '')
+        formatted = re.sub(r'\b\d+(?:,\d+)*\b', format_inr, text)
+        
+        if 'per annum' not in formatted.lower() and 'lpa' not in formatted.lower():
+            formatted += ' per annum'
+            
+        return formatted
+
 class Application(models.Model):
     STATUS_CHOICES = (
         ('APPLIED', 'Applied'),
