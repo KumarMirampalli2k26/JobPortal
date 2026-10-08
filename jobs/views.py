@@ -35,6 +35,8 @@ class JobListView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['q'] = self.request.GET.get('q', '')
+        context['location'] = self.request.GET.get('location', '')
         if self.request.user.is_authenticated and hasattr(self.request.user, 'profile') and self.request.user.profile.role == 'CANDIDATE':
             saved_job_ids = SavedJob.objects.filter(user=self.request.user).values_list('job_id', flat=True)
             context['saved_job_ids'] = list(saved_job_ids)
