@@ -214,3 +214,41 @@ class ApplicantManagementTestCase(TestCase):
         self.assertEqual(mail.outbox[0].subject, f"Update on your application for {self.job.title}")
         self.assertIn("Shortlisted", mail.outbox[0].body)
         self.assertEqual(mail.outbox[0].to, ['c1@example.com'])
+
+class SavedJobsTestCase(TestCase):
+    def setUp(self):
+        self.recruiter = User.objects.create_user(username='recruiter1', password='password123', email='r1@example.com')
+        self.recruiter.profile.role = 'RECRUITER'
+        self.recruiter.profile.save()
+        
+        self.candidate = User.objects.create_user(username='candidate1', password='password123', email='c1@example.com')
+        self.candidate.profile.role = 'CANDIDATE'
+        self.candidate.profile.save()
+
+        self.job = Job.objects.create(
+            recruiter=self.recruiter,
+            title='Test Job to Save',
+            description='Test Description',
+            location='Test Location'
+        )
+
+    def test_save_and_unsave_job(self):
+        self.client.login(username='candidate1', password='password123')
+        
+        # Save Job
+        response = self.client.post(f'/jobs/{self.job.id}/save/')
+        self.assertRedirects(response, f'/jobs/{self.job.id}/', fetch_redirect_response=False)
+        self.assertTrue(SavedJob.objects.filter(user=self.candidate, job=self.job).exists())
+        
+        # Unsave Job
+        response = self.client.post(f'/jobs/{self.job.id}/save/')
+        self.assertRedirects(response, f'/jobs/{self.job.id}/', fetch_redirect_response=False)
+        self.assertFalse(SavedJob.objects.filter(user=self.candidate, job=self.job).exists())
+
+    def test_saved_jobs_view(self):
+        self.client.login(username='candidate1', password='password123')
+        SavedJob.objects.create(user=self.candidate, job=self.job)
+        
+        response = self.client.get('/jobs/saved/')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Test Job to Save')

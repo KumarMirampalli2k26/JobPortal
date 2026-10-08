@@ -5,7 +5,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.urls import reverse_lazy
 from django.contrib import messages
 from django.db.models import Q
-from .models import Job, Application, Company
+from .models import Job, Application, Company, SavedJob
 from .forms import ApplicationForm
 from django.utils.decorators import method_decorator
 from accounts.decorators import recruiter_required, candidate_required
@@ -27,6 +27,15 @@ class JobListView(ListView):
             )
         return queryset
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.request.user.is_authenticated and hasattr(self.request.user, 'profile') and self.request.user.profile.role == 'CANDIDATE':
+            saved_job_ids = SavedJob.objects.filter(user=self.request.user).values_list('job_id', flat=True)
+            context['saved_job_ids'] = list(saved_job_ids)
+        else:
+            context['saved_job_ids'] = []
+        return context
+
 class JobDetailView(DetailView):
     model = Job
     template_name = 'jobs/job_detail.html'
@@ -36,6 +45,7 @@ class JobDetailView(DetailView):
         context = super().get_context_data(**kwargs)
         if self.request.user.is_authenticated:
             context['has_applied'] = Application.objects.filter(job=self.object, candidate=self.request.user).exists()
+            context['has_saved'] = SavedJob.objects.filter(job=self.object, user=self.request.user).exists()
         return context
 
 @method_decorator(recruiter_required, name='dispatch')
@@ -177,3 +187,32 @@ class ChangeApplicationStatusView(View):
             messages.error(request, "Invalid status.")
             
         return redirect('job_applicants', pk=application.job.pk)
+
+@method_decorator(candidate_required, name='dispatch')
+class ToggleSavedJobView(View):
+    def post(self, request, pk):
+        job = get_object_or_404(Job, pk=pk, is_active=True)
+        saved_job, created = SavedJob.objects.get_or_create(user=request.user, job=job)
+        
+        if not created:
+            saved_job.delete()
+            messages.success(request, f"Removed '{job.title}' from saved jobs.")
+        else:
+            messages.success(request, f"Saved '{job.title}' to your saved jobs.")
+            
+        # Redirect back to where they came from, or dashboard
+        next_url = request.POST.get('next', 'job_detail')
+        if next_url == 'saved_jobs':
+            return redirect('saved_jobs')
+        elif next_url == 'job_list':
+            return redirect('job_list')
+        return redirect('job_detail', pk=pk)
+
+@method_decorator(candidate_required, name='dispatch')
+class SavedJobListView(ListView):
+    model = SavedJob
+    template_name = 'jobs/saved_jobs.html'
+    context_object_name = 'saved_jobs'
+    
+    def get_queryset(self):
+        return SavedJob.objects.filter(user=self.request.user).select_related('job', 'job__recruiter', 'job__recruiter__company').order_by('-saved_at')
