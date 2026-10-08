@@ -76,6 +76,7 @@
                                             {% if job.is_active %}Deactivate{% else %}Activate{% endif %}
                                         </button>
                                     </form>
+                                    <a href="{% url 'job_applicants' job.id %}" class="text-green-600 hover:text-green-900">Applicants</a>
                                     <a href="{% url 'job_update' job.id %}" class="text-blue-600 hover:text-blue-900">Edit</a>
                                     <a href="{% url 'job_delete' job.id %}" class="text-red-600 hover:text-red-900">Delete</a>
                                 </td>

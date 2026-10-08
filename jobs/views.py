@@ -6,8 +6,9 @@ from django.urls import reverse_lazy
 from django.contrib import messages
 from django.db.models import Q
 from .models import Job, Application, Company
+from .forms import ApplicationForm
 from django.utils.decorators import method_decorator
-from accounts.decorators import recruiter_required
+from accounts.decorators import recruiter_required, candidate_required
 
 class JobListView(ListView):
     model = Job
@@ -101,29 +102,38 @@ class CompanyUpdateView(UpdateView):
         messages.success(self.request, "Company profile updated successfully!")
         return super().form_valid(form)
 
-@login_required
+@candidate_required
 def apply_to_job(request, pk):
-    job = get_object_or_404(Job, pk=pk)
+    job = get_object_or_404(Job, pk=pk, is_active=True)
     
-    if request.user.profile.role != 'CANDIDATE':
-        messages.error(request, "Only candidates can apply for jobs.")
-        return redirect('job_detail', pk=pk)
-
     if Application.objects.filter(job=job, candidate=request.user).exists():
         messages.warning(request, "You have already applied for this job.")
-        return redirect('job_detail', pk=pk)
+        return redirect('dashboard')
 
     if request.method == 'POST':
-        if 'resume' in request.FILES:
-            resume = request.FILES['resume']
-            Application.objects.create(
-                job=job,
-                candidate=request.user,
-                resume=resume
-            )
+        form = ApplicationForm(request.POST, request.FILES)
+        if form.is_valid():
+            application = form.save(commit=False)
+            application.job = job
+            application.candidate = request.user
+            application.save()
             messages.success(request, f"You have successfully applied to {job.title}!")
             return redirect('dashboard')
-        else:
-            messages.error(request, "Please upload a resume (PDF format).")
+    else:
+        form = ApplicationForm()
     
-    return render(request, 'jobs/apply.html', {'job': job})
+    return render(request, 'jobs/apply.html', {'job': job, 'form': form})
+
+@method_decorator(recruiter_required, name='dispatch')
+class JobApplicantsView(DetailView):
+    model = Job
+    template_name = 'jobs/job_applicants.html'
+    context_object_name = 'job'
+    
+    def get_queryset(self):
+        return Job.objects.filter(recruiter=self.request.user)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['applications'] = self.object.applications.all()
+        return context

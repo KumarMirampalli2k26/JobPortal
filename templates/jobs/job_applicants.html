@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block title %}Applicants for {{ job.title }} - JobPortal{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="mb-8">
+        <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">Applicants for {{ job.title }}</h2>
+        <a href="{% url 'dashboard' %}" class="mt-2 text-indigo-600 hover:text-indigo-900 text-sm font-medium">&larr; Back to Dashboard</a>
+    </div>
+
+    <div class="bg-white shadow overflow-hidden sm:rounded-lg border border-gray-100">
+        <ul class="divide-y divide-gray-200">
+            {% for app in applications %}
+                <li class="px-4 py-4 sm:px-6">
+                    <div class="flex items-center justify-between">
+                        <div class="flex-1 min-w-0">
+                            <h3 class="text-lg font-medium text-gray-900 truncate">{{ app.candidate.first_name }} {{ app.candidate.last_name }} ({{ app.candidate.username }})</h3>
+                            <p class="text-sm text-gray-500 mt-1">Applied on {{ app.applied_at|date:"F d, Y" }}</p>
+                            <p class="text-sm text-gray-500 mt-1">
+                                Email: <a href="mailto:{{ app.candidate.email }}" class="text-indigo-600">{{ app.candidate.email }}</a>
+                                {% if app.candidate.profile.phone %} | Phone: {{ app.candidate.profile.phone }}{% endif %}
+                            </p>
+                        </div>
+                        <div class="ml-4 flex-shrink-0 flex items-center space-x-4">
+                            <span class="badge">{{ app.get_status_display }}</span>
+                            {% if app.resume %}
+                                <a href="{{ app.resume.url }}" target="_blank" class="btn-primary">Download Resume</a>
+                            {% else %}
+                                <span class="text-sm text-gray-500">No Resume</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% if app.candidate.profile.bio %}
+                        <div class="mt-4 text-sm text-gray-700">
+                            <p class="font-medium text-gray-900">Bio:</p>
+                            <p class="mt-1">{{ app.candidate.profile.bio }}</p>
+                        </div>
+                    {% endif %}
+                </li>
+            {% empty %}
+                <li class="px-4 py-5 sm:p-6 text-center text-gray-500">
+                    No applicants yet for this job.
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+{% endblock %}

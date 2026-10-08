@@ -130,3 +130,50 @@ class JobCRUDTestCase(TestCase):
         # Candidate tries to edit job
         response = self.client.get(f'/jobs/{self.job.id}/update/')
         self.assertEqual(response.status_code, 302)
+
+class ApplicationFlowTestCase(TestCase):
+    def setUp(self):
+        self.recruiter = User.objects.create_user(username='recruiter1', password='password123', email='r1@example.com')
+        self.recruiter.profile.role = 'RECRUITER'
+        self.recruiter.profile.save()
+        
+        self.candidate = User.objects.create_user(username='candidate1', password='password123', email='c1@example.com')
+        self.candidate.profile.role = 'CANDIDATE'
+        self.candidate.profile.save()
+
+        self.job = Job.objects.create(
+            recruiter=self.recruiter,
+            title='Test Job',
+            description='Test Description',
+            location='Test Location'
+        )
+
+    def test_successful_application(self):
+        self.client.login(username='candidate1', password='password123')
+        pdf_resume = SimpleUploadedFile("resume.pdf", b"dummy pdf content", content_type="application/pdf")
+        
+        response = self.client.post(f'/jobs/{self.job.id}/apply/', {'resume': pdf_resume})
+        self.assertRedirects(response, '/accounts/dashboard/', fetch_redirect_response=False)
+        self.assertEqual(Application.objects.count(), 1)
+        self.assertEqual(Application.objects.first().candidate, self.candidate)
+
+    def test_duplicate_application_prevention(self):
+        pdf_resume = SimpleUploadedFile("resume.pdf", b"dummy pdf content", content_type="application/pdf")
+        Application.objects.create(job=self.job, candidate=self.candidate, resume=pdf_resume)
+        
+        self.client.login(username='candidate1', password='password123')
+        pdf_resume2 = SimpleUploadedFile("resume2.pdf", b"dummy pdf content", content_type="application/pdf")
+        response = self.client.post(f'/jobs/{self.job.id}/apply/', {'resume': pdf_resume2})
+        
+        # Should redirect to dashboard and show a warning
+        self.assertRedirects(response, '/accounts/dashboard/', fetch_redirect_response=False)
+        self.assertEqual(Application.objects.count(), 1) # Still 1
+
+    def test_pdf_validation_in_view(self):
+        self.client.login(username='candidate1', password='password123')
+        txt_resume = SimpleUploadedFile("resume.txt", b"dummy txt content", content_type="text/plain")
+        
+        response = self.client.post(f'/jobs/{self.job.id}/apply/', {'resume': txt_resume})
+        self.assertEqual(response.status_code, 200) # Form validation failed, re-renders page
+        self.assertContains(response, "Allowed extensions are: pdf")
+        self.assertEqual(Application.objects.count(), 0)
