@@ -12,7 +12,8 @@
         
         <div class="mt-4 md:mt-0">
             <form method="GET" class="flex space-x-2">
-                <input type="text" name="q" value="{{ request.GET.q }}" placeholder="Search jobs..." class="input-field">
+                <input type="text" name="q" value="{{ request.GET.q }}" placeholder="Job title, keyword, or company" class="input-field">
+                <input type="text" name="location" value="{{ request.GET.location }}" placeholder="City, state, or Remote" class="input-field">
                 <button type="submit" class="btn-primary">
                     Search
                 </button>

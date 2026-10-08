@@ -17,14 +17,20 @@ class JobListView(ListView):
     paginate_by = 10
 
     def get_queryset(self):
-        queryset = super().get_queryset().filter(is_active=True)
+        queryset = super().get_queryset().filter(is_active=True).order_by('-posted_on')
         query = self.request.GET.get('q')
+        location = self.request.GET.get('location')
+        
         if query:
             queryset = queryset.filter(
                 Q(title__icontains=query) | 
-                Q(description__icontains=query) |
-                Q(location__icontains=query)
+                Q(company_name__icontains=query) |
+                Q(skills__icontains=query)
             )
+            
+        if location:
+            queryset = queryset.filter(location__icontains=location)
+            
         return queryset
 
     def get_context_data(self, **kwargs):
