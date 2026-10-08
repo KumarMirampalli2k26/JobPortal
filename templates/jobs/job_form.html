@@ -47,22 +47,26 @@
                 <div class="sm:col-span-2">
                     <label for="id_skills" class="block text-sm font-medium text-gray-700">Required Skills</label>
                     <div class="mt-1">
-                        <input type="text" name="skills" id="id_skills" value="{{ form.skills.value|default:'' }}" placeholder="e.g. Python, Django, React" class="input-field">
+                        <input type="text" name="skills" id="id_skills" value="{{ form.skills.value|default:'' }}" placeholder="e.g. Python, Django, React, Java, SQL" class="input-field">
                     </div>
+                    <p class="mt-1 text-xs text-gray-400">Comma-separated list of required skills</p>
                 </div>
 
                 <div>
                     <label for="id_location" class="block text-sm font-medium text-gray-700">Location</label>
                     <div class="mt-1">
-                        <input type="text" name="location" id="id_location" value="{{ form.location.value|default:'' }}" required class="input-field">
+                        <input type="text" name="location" id="id_location" value="{{ form.location.value|default:'' }}" placeholder="e.g. Bangalore, Hyderabad, Remote" required class="input-field">
+                    </div>
+                    <p class="mt-1 text-xs text-gray-400">City name or "Remote"</p>
                     </div>
                 </div>
                 
                 <div>
                     <label for="id_salary" class="block text-sm font-medium text-gray-700">Salary</label>
                     <div class="mt-1">
-                        <input type="text" name="salary" id="id_salary" value="{{ form.salary.value|default:'' }}" placeholder="e.g. $80,000 - $100,000" class="input-field">
+                        <input type="text" name="salary" id="id_salary" value="{{ form.salary.value|default:'' }}" placeholder="e.g. ₹6,00,000 - ₹12,00,000" class="input-field">
                     </div>
+                    <p class="mt-1 text-xs text-gray-400">Annual CTC in Indian Rupees (optional)</p>
                 </div>
             </div>
 
