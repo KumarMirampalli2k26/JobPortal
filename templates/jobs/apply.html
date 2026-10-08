@@ -4,9 +4,9 @@
 
 {% block content %}
 <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-    <div class="bg-white shadow sm:rounded-lg border border-gray-100 p-6 sm:p-8">
+    <div class="card p-6 sm:p-8">
         <h2 class="text-2xl font-bold text-gray-900 mb-2">Apply for {{ job.title }}</h2>
-        <p class="text-gray-500 mb-6">at {{ job.recruiter.username }}</p>
+        <p class="text-gray-500 mb-6">at {{ job.recruiter.company.name|default:job.recruiter.username }}</p>
         
         <form method="POST" enctype="multipart/form-data" class="space-y-6">
             {% csrf_token %}
@@ -29,9 +29,9 @@
                 {% endif %}
             </div>
 
-            <div class="flex justify-end pt-4 border-t border-gray-100">
-                <a href="{% url 'job_detail' job.id %}" class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 mr-3">Cancel</a>
-                <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Submit Application</button>
+            <div class="flex justify-end pt-4 border-t border-gray-100 space-x-3">
+                <a href="{% url 'job_detail' job.id %}" class="btn-secondary">Cancel</a>
+                <button type="submit" class="btn-primary">Submit Application</button>
             </div>
         </form>
     </div>
