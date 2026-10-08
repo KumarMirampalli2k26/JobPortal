@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from .models import Company, Job, Application, SavedJob
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.exceptions import ValidationError
+from django.db import transaction
 
 class JobsTestCase(TestCase):
     def setUp(self):
@@ -55,10 +56,12 @@ class JobsTestCase(TestCase):
         
     def test_unique_constraints(self):
         SavedJob.objects.create(user=self.candidate, job=self.job)
-        with self.assertRaises(Exception):
-            SavedJob.objects.create(user=self.candidate, job=self.job)
-            
+        with transaction.atomic():
+            with self.assertRaises(Exception):
+                SavedJob.objects.create(user=self.candidate, job=self.job)
+                
         pdf_resume = SimpleUploadedFile("resume.pdf", b"file_content", content_type="application/pdf")
         Application.objects.create(job=self.job, candidate=self.candidate, resume=pdf_resume)
-        with self.assertRaises(Exception):
-            Application.objects.create(job=self.job, candidate=self.candidate, resume=pdf_resume)
+        with transaction.atomic():
+            with self.assertRaises(Exception):
+                Application.objects.create(job=self.job, candidate=self.candidate, resume=pdf_resume)
