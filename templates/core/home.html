@@ -49,7 +49,7 @@
                     <div class="flex-1 p-6 flex flex-col justify-between">
                         <div class="flex-1">
                             <p class="text-sm font-medium text-indigo-600">
-                                {{ job.get_job_type_display }}
+                                {{ job.skills }}
                             </p>
                             <a href="{% url 'job_detail' job.id %}" class="block mt-2">
                                 <p class="text-xl font-semibold text-gray-900">{{ job.title }}</p>
@@ -71,8 +71,8 @@
                                     {{ job.recruiter.username }}
                                 </p>
                                 <div class="flex space-x-1 text-sm text-gray-500">
-                                    <time datetime="{{ job.created_at|date:'Y-m-d' }}">
-                                        {{ job.created_at|timesince }} ago
+                                    <time datetime="{{ job.posted_on|date:'Y-m-d' }}">
+                                        {{ job.posted_on|timesince }} ago
                                     </time>
                                     <span aria-hidden="true">&middot;</span>
                                     <span>{{ job.location }}</span>

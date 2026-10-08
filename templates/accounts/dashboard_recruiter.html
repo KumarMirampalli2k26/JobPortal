@@ -42,7 +42,7 @@
                                         <p class="flex items-center">{{ job.location }}</p>
                                     </div>
                                     <div class="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
-                                        <p>Posted on <time datetime="{{ job.created_at|date:'Y-m-d' }}">{{ job.created_at|date:"M d, Y" }}</time></p>
+                                        <p>Posted on <time datetime="{{ job.posted_on|date:'Y-m-d' }}">{{ job.posted_on|date:"M d, Y" }}</time></p>
                                     </div>
                                 </div>
                             </div>

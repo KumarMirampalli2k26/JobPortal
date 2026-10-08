@@ -38,7 +38,7 @@ class JobDetailView(DetailView):
 class JobCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     model = Job
     template_name = 'jobs/job_form.html'
-    fields = ['title', 'description', 'location', 'job_type', 'salary_range']
+    fields = ['title', 'description', 'skills', 'location', 'salary']
     success_url = reverse_lazy('dashboard')
 
     def form_valid(self, form):
@@ -62,13 +62,16 @@ def apply_to_job(request, pk):
         return redirect('job_detail', pk=pk)
 
     if request.method == 'POST':
-        cover_letter = request.POST.get('cover_letter', '')
-        Application.objects.create(
-            job=job,
-            candidate=request.user,
-            cover_letter=cover_letter
-        )
-        messages.success(request, f"You have successfully applied to {job.title}!")
-        return redirect('dashboard')
+        if 'resume' in request.FILES:
+            resume = request.FILES['resume']
+            Application.objects.create(
+                job=job,
+                candidate=request.user,
+                resume=resume
+            )
+            messages.success(request, f"You have successfully applied to {job.title}!")
+            return redirect('dashboard')
+        else:
+            messages.error(request, "Please upload a resume (PDF format).")
     
     return render(request, 'jobs/apply.html', {'job': job})

@@ -1,14 +1,25 @@
 from django.contrib import admin
-from .models import Job, Application
+from .models import Company, Job, Application, SavedJob
+
+@admin.register(Company)
+class CompanyAdmin(admin.ModelAdmin):
+    list_display = ['name', 'owner', 'location']
+    search_fields = ['name', 'location']
 
 @admin.register(Job)
 class JobAdmin(admin.ModelAdmin):
-    list_display = ['title', 'recruiter', 'job_type', 'is_active', 'created_at']
-    list_filter = ['is_active', 'job_type']
-    search_fields = ['title', 'description', 'location']
+    list_display = ['title', 'recruiter', 'location', 'is_active', 'posted_on']
+    list_filter = ['is_active', 'posted_on']
+    search_fields = ['title', 'description', 'location', 'skills']
 
 @admin.register(Application)
 class ApplicationAdmin(admin.ModelAdmin):
     list_display = ['candidate', 'job', 'status', 'applied_at']
     list_filter = ['status']
     search_fields = ['candidate__username', 'job__title']
+
+@admin.register(SavedJob)
+class SavedJobAdmin(admin.ModelAdmin):
+    list_display = ['user', 'job', 'saved_at']
+    list_filter = ['saved_at']
+    search_fields = ['user__username', 'job__title']
