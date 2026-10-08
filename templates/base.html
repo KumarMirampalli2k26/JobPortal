@@ -20,6 +20,14 @@
                         sans: ['Inter', 'sans-serif'],
                     },
                     colors: {
+                        brand: {
+                            bg: '#F9FAFB',
+                            surface: '#FFFFFF',
+                            text: '#111827',
+                            muted: '#6B7280',
+                            border: '#E5E7EB',
+                            accent: '#4F46E5',
+                        },
                         indigo: {
                             50: '#eef2ff',
                             100: '#e0e7ff',
@@ -27,7 +35,7 @@
                             300: '#a5b4fc',
                             400: '#818cf8',
                             500: '#6366f1',
-                            600: '#4f46e5',
+                            600: '#4F46E5', // Matches accent
                             700: '#4338ca',
                             800: '#3730a3',
                             900: '#312e81',
@@ -41,15 +49,32 @@
     <!-- Alpine.js -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
-    <style>
+    <style type="text/tailwindcss">
+        @layer components {
+            .btn-primary {
+                @apply inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-brand-accent hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-accent transition-colors;
+            }
+            .btn-secondary {
+                @apply inline-flex items-center justify-center px-4 py-2 border border-brand-border rounded-md shadow-sm text-sm font-medium text-brand-text bg-brand-surface hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-accent transition-colors;
+            }
+            .input-field {
+                @apply appearance-none block w-full px-3 py-2 border border-brand-border rounded-md shadow-sm placeholder-brand-muted text-brand-text focus:outline-none focus:ring-brand-accent focus:border-brand-accent sm:text-sm;
+            }
+            .card {
+                @apply bg-brand-surface shadow-sm rounded-lg border border-brand-border overflow-hidden;
+            }
+            .badge {
+                @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800;
+            }
+        }
         [x-cloak] { display: none !important; }
-        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #1e293b; }
+        body { font-family: 'Inter', sans-serif; background-color: theme('colors.brand.bg'); color: theme('colors.brand.text'); }
     </style>
     {% block extra_head %}{% endblock %}
 </head>
-<body class="antialiased min-h-screen flex flex-col">
+<body class="antialiased min-h-screen flex flex-col bg-brand-bg text-brand-text">
     <!-- Navigation -->
-    <nav class="bg-white border-b border-gray-100 sticky top-0 z-50">
+    <nav class="bg-brand-surface border-b border-brand-border sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
                 <div class="flex">
@@ -64,7 +89,7 @@
                 <div class="hidden sm:ml-6 sm:flex sm:items-center space-x-4">
                     {% if user.is_authenticated %}
                         {% if user.profile.role == 'RECRUITER' %}
-                            <a href="{% url 'job_create' %}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">Post a Job</a>
+                            <a href="{% url 'job_create' %}" class="btn-primary">Post a Job</a>
                         {% endif %}
                         
                         <!-- Profile dropdown -->
@@ -75,23 +100,23 @@
                                     {% if user.profile.avatar %}
                                         <img class="h-8 w-8 rounded-full object-cover" src="{{ user.profile.avatar.url }}" alt="">
                                     {% else %}
-                                        <div class="h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold">
+                                        <div class="h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center text-brand-accent font-bold">
                                             {{ user.username|make_list|first|upper }}
                                         </div>
                                     {% endif %}
                                 </button>
                             </div>
-                            <div x-show="open" x-transition:enter="transition ease-out duration-100" x-transition:enter-start="transform opacity-0 scale-95" x-transition:enter-end="transform opacity-100 scale-100" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="transform opacity-100 scale-100" x-transition:leave-end="transform opacity-0 scale-95" class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none" role="menu" aria-orientation="vertical" aria-labelledby="user-menu-button" tabindex="-1" style="display: none;">
-                                <a href="{% url 'dashboard' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem" tabindex="-1" id="user-menu-item-0">Dashboard</a>
+                            <div x-show="open" x-transition:enter="transition ease-out duration-100" x-transition:enter-start="transform opacity-0 scale-95" x-transition:enter-end="transform opacity-100 scale-100" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="transform opacity-100 scale-100" x-transition:leave-end="transform opacity-0 scale-95" class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-brand-surface ring-1 ring-black ring-opacity-5 focus:outline-none" role="menu" aria-orientation="vertical" aria-labelledby="user-menu-button" tabindex="-1" style="display: none;">
+                                <a href="{% url 'dashboard' %}" class="block px-4 py-2 text-sm text-brand-text hover:bg-gray-100" role="menuitem" tabindex="-1" id="user-menu-item-0">Dashboard</a>
                                 <form method="post" action="{% url 'logout' %}">
                                     {% csrf_token %}
-                                    <button type="submit" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem" tabindex="-1" id="user-menu-item-2">Sign out</button>
+                                    <button type="submit" class="block w-full text-left px-4 py-2 text-sm text-brand-text hover:bg-gray-100" role="menuitem" tabindex="-1" id="user-menu-item-2">Sign out</button>
                                 </form>
                             </div>
                         </div>
                     {% else %}
-                        <a href="{% url 'login' %}" class="text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">Log in</a>
-                        <a href="{% url 'register' %}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">Sign up</a>
+                        <a href="{% url 'login' %}" class="text-sm font-medium text-brand-muted hover:text-brand-text transition-colors">Log in</a>
+                        <a href="{% url 'register' %}" class="btn-primary">Sign up</a>
                     {% endif %}
                 </div>
             </div>
@@ -115,9 +140,9 @@
     </main>
 
     <!-- Footer -->
-    <footer class="bg-white mt-12 border-t border-gray-200">
+    <footer class="bg-brand-surface mt-12 border-t border-brand-border">
         <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-            <p class="mt-8 text-base text-gray-400 md:mt-0 md:order-1 text-center">
+            <p class="mt-8 text-base text-brand-muted md:mt-0 md:order-1 text-center">
                 &copy; {% now "Y" %} JobPortal. All rights reserved.
             </p>
         </div>

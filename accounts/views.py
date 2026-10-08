@@ -5,6 +5,7 @@ from django.views.generic import CreateView
 from django.urls import reverse_lazy
 from django.contrib import messages
 from .forms import UserRegistrationForm, UserUpdateForm, ProfileUpdateForm
+from .decorators import recruiter_required, candidate_required
 from jobs.models import Job, Application
 
 class RegisterView(CreateView):
@@ -26,13 +27,22 @@ class RegisterView(CreateView):
 
 @login_required
 def dashboard(request):
+    """Redirects to the appropriate dashboard based on user role."""
     if request.user.profile.role == 'RECRUITER':
-        jobs = Job.objects.filter(recruiter=request.user)
-        applications = Application.objects.filter(job__in=jobs).order_by('-applied_at')[:5]
-        return render(request, 'accounts/dashboard_recruiter.html', {'jobs': jobs, 'applications': applications})
+        return redirect('recruiter_dashboard')
     else:
-        applications = Application.objects.filter(candidate=request.user)
-        return render(request, 'accounts/dashboard_candidate.html', {'applications': applications})
+        return redirect('candidate_dashboard')
+
+@recruiter_required
+def recruiter_dashboard(request):
+    jobs = Job.objects.filter(recruiter=request.user)
+    applications = Application.objects.filter(job__in=jobs).order_by('-applied_at')[:5]
+    return render(request, 'accounts/dashboard_recruiter.html', {'jobs': jobs, 'applications': applications})
+
+@candidate_required
+def candidate_dashboard(request):
+    applications = Application.objects.filter(candidate=request.user)
+    return render(request, 'accounts/dashboard_candidate.html', {'applications': applications})
 
 @login_required
 def profile_update(request):
