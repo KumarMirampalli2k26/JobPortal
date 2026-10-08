@@ -14,4 +14,5 @@ urlpatterns = [
     path('<int:pk>/save/', views.ToggleSavedJobView.as_view(), name='toggle_saved_job'),
     path('saved/', views.SavedJobListView.as_view(), name='saved_jobs'),
     path('company/', views.CompanyUpdateView.as_view(), name='company_update'),
+    path('company/<int:pk>/', views.CompanyDetailView.as_view(), name='company_detail'),
 ]

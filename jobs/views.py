@@ -112,6 +112,17 @@ class CompanyUpdateView(UpdateView):
         messages.success(self.request, "Company profile updated successfully!")
         return super().form_valid(form)
 
+class CompanyDetailView(DetailView):
+    model = Company
+    template_name = 'jobs/company_detail.html'
+    context_object_name = 'company'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Add all active jobs for this company
+        context['company_jobs'] = Job.objects.filter(recruiter__company=self.object, is_active=True).order_by('-posted_on')
+        return context
+
 @candidate_required
 def apply_to_job(request, pk):
     job = get_object_or_404(Job, pk=pk, is_active=True)

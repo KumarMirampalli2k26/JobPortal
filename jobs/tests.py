@@ -252,3 +252,57 @@ class SavedJobsTestCase(TestCase):
         response = self.client.get('/jobs/saved/')
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Test Job to Save')
+
+class CompanyProfileTestCase(TestCase):
+    def setUp(self):
+        self.recruiter = User.objects.create_user(username='recruiter1', password='password123', email='r1@example.com')
+        self.recruiter.profile.role = 'RECRUITER'
+        self.recruiter.profile.save()
+        
+        self.company = Company.objects.create(
+            owner=self.recruiter,
+            name='Tech Corp',
+            location='New York',
+            description='Tech solutions'
+        )
+
+        self.candidate = User.objects.create_user(username='candidate1', password='password123', email='c1@example.com')
+        self.candidate.profile.role = 'CANDIDATE'
+        self.candidate.profile.save()
+
+    def test_company_detail_view(self):
+        # Create an active job for the company
+        Job.objects.create(recruiter=self.recruiter, title='Company Job 1', location='NY', description='Desc')
+        
+        response = self.client.get(f'/jobs/company/{self.company.id}/')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Tech Corp')
+        self.assertContains(response, 'Company Job 1')
+
+    def test_company_update_permissions(self):
+        # Unauthenticated
+        response = self.client.get('/jobs/company/')
+        self.assertEqual(response.status_code, 302)
+        
+        # Candidate should be forbidden (redirected to login via user_passes_test)
+        self.client.login(username='candidate1', password='password123')
+        response = self.client.get('/jobs/company/')
+        self.assertEqual(response.status_code, 302)
+        
+        # Recruiter should access their company update form
+        self.client.login(username='recruiter1', password='password123')
+        response = self.client.get('/jobs/company/')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Tech Corp')
+
+    def test_company_update_post(self):
+        self.client.login(username='recruiter1', password='password123')
+        response = self.client.post('/jobs/company/', {
+            'name': 'New Tech Corp',
+            'location': 'San Francisco',
+            'website': 'https://example.com'
+        })
+        self.assertRedirects(response, '/accounts/dashboard/', fetch_redirect_response=False)
+        self.company.refresh_from_db()
+        self.assertEqual(self.company.name, 'New Tech Corp')
+        self.assertEqual(self.company.location, 'San Francisco')
